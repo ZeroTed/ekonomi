@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Ekonomi">
+<meta name="theme-color" content="#12202A">
+<title>Ekonomi</title>
+</head>
+<body>
+<style>
+  :root{
+    --bg:#12202A; --surface:#1B2C39; --surface2:#243B4A; --line:#2E4757;
+    --ink:#F2EFE6; --muted:#93A9B6; --mint:#6FD8A8; --rose:#E9556D; --gold:#F0D264;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;}
+  #wrap{max-width:480px;margin:0 auto;padding:20px 16px 110px}
+  .num{font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  .card{background:var(--surface);border-radius:16px;padding:16px;margin-bottom:12px}
+  .ct{font-size:14px;font-weight:600}
+  .cs{font-size:12px;color:var(--muted);margin-top:2px}
+  .mut{color:var(--muted)}
+  .sm{font-size:14px} .xs{font-size:12px}
+  .row{display:flex;align-items:center;gap:12px}
+  .between{display:flex;justify-content:space-between;align-items:baseline}
+  input,select,textarea{background:var(--surface2);color:var(--ink);border:1px solid var(--line);
+    border-radius:10px;padding:10px 12px;width:100%;font-size:16px;outline:none;
+    font-variant-numeric:tabular-nums;font-family:inherit}
+  label.f{display:block;margin-bottom:12px}
+  label.f>span{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  .btn{border-radius:12px;padding:10px 16px;font-size:14px;background:var(--surface2);
+    color:var(--ink);border:1px solid var(--line)}
+  .btn.p{background:var(--mint);color:#0E2019;font-weight:600;border:none}
+  .btn.d{background:transparent;color:var(--rose)}
+  .btn[disabled]{opacity:.45}
+  .chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{border-radius:999px;padding:6px 14px;font-size:12px;white-space:nowrap;
+    background:var(--surface);color:var(--muted)}
+  .chip.on{background:var(--ink);color:var(--bg);font-weight:600}
+  .track{background:var(--surface2);border-radius:999px;overflow:hidden;height:6px}
+  .track>div{height:100%;border-radius:999px}
+  nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);
+    border-top:1px solid var(--line);z-index:40}
+  nav>div{max-width:480px;margin:0 auto;display:flex;padding-bottom:env(safe-area-inset-bottom)}
+  nav button{flex:1;padding:14px 0 10px;font-size:12px;color:var(--muted)}
+  nav button.on{color:var(--ink);font-weight:600}
+  nav button i{display:block;height:2px;width:22px;margin:6px auto 0;border-radius:2px;background:transparent}
+  nav button.on i{background:var(--mint)}
+  #fab{position:fixed;bottom:86px;right:max(16px,calc(50% - 224px));width:56px;height:56px;
+    border-radius:50%;background:var(--mint);color:#0E2019;font-size:30px;line-height:1;
+    box-shadow:0 6px 20px rgba(0,0,0,.45);z-index:30}
+  #sheetbg{position:fixed;inset:0;background:rgba(6,14,20,.7);z-index:50;display:none;
+    align-items:flex-end;justify-content:center}
+  #sheet{background:var(--surface);border-radius:24px 24px 0 0;padding:20px;width:100%;
+    max-width:480px;max-height:92vh;overflow-y:auto}
+  .seg{display:flex;gap:8px;margin-bottom:16px}
+  .seg button{flex:1;border-radius:12px;padding:10px;font-size:14px;background:var(--surface2);color:var(--muted)}
+  .seg button.on{background:var(--ink);color:var(--bg);font-weight:600}
+  .seg button.on.in{background:var(--mint)}
+  .cats{display:flex;flex-wrap:wrap;gap:8px}
+  .cat{border-radius:999px;padding:8px 12px;font-size:12px;background:var(--surface2);
+    border:1px solid var(--line);display:flex;align-items:center;gap:6px}
+  .dot{width:8px;height:8px;border-radius:2px;flex:0 0 auto}
+  .alert{background:#3A1F28;color:var(--rose);border-radius:12px;padding:12px;
+    margin-bottom:12px;font-size:12px;line-height:1.6}
+  .lst>div{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--line)}
+  .lst>div:first-child{border-top:none}
+  .lst{background:var(--surface);border-radius:16px;overflow:hidden}
+  .trunc{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+  th{font-size:12px;color:var(--muted);font-weight:400;text-align:right;padding-bottom:8px;
+    border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  td{font-size:14px;text-align:right;padding:8px 0;border-bottom:1px solid var(--line)}
+</style>
+
+<div id="wrap">
+  <div id="alert"></div>
+  <div id="view"></div>
+</div>
+
+<button id="fab" aria-label="Lägg till post">+</button>
+
+<nav><div id="nav"></div></nav>
+
+<div id="sheetbg"><div id="sheet"></div></div>
+
+<script>
+/* ---------- konstanter ---------- */
+var KEY = "ekonomi:v3", START = "2026-10";
+
+var CATS = [
+  {id:"mat",namn:"Mat",color:"#F2A65A"},
+  {id:"ute",namn:"Uteätning & fika",color:"#F27D9B"},
+  {id:"noje",namn:"Nöje",color:"#A98BF0"},
+  {id:"transport",namn:"Transport",color:"#5AC8F5"},
+  {id:"hem",namn:"Hem & prylar",color:"#7FB069"},
+  {id:"klader",namn:"Kläder",color:"#C98BC1"},
+  {id:"halsa",namn:"Hälsa",color:"#5FD3C4"},
+  {id:"studier",namn:"Studier",color:"#F0D264"},
+  {id:"ovrigt",namn:"Övrigt",color:"#8FA4B0"}
+];
+
+var CSN0 = [
+  {id:"c3",date:"2026-10-23",sum:13592,bidrag:4120,lan:9472,weeks:"44–47"},
+  {id:"c4",date:"2026-11-25",sum:13592,bidrag:4120,lan:9472,weeks:"48–51"},
+  {id:"c5",date:"2026-12-23",sum:10194,bidrag:3090,lan:7104,weeks:"52–01"},
+  {id:"c6",date:"2027-01-18",sum:20238,bidrag:6180,lan:14058,weeks:"03–08",note:"150 kr uppläggningsavgift avdragen"},
+  {id:"c7",date:"2027-02-25",sum:13592,bidrag:4120,lan:9472,weeks:"09–12"},
+  {id:"c8",date:"2027-03-25",sum:13592,bidrag:4120,lan:9472,weeks:"13–16"},
+  {id:"c9",date:"2027-04-23",sum:13592,bidrag:4120,lan:9472,weeks:"17–20"},
+  {id:"c10",date:"2027-05-25",sum:6796,bidrag:2060,lan:4736,weeks:"21–22"}
+];
+
+var FIXED0 = [
+  {id:"f1",namn:"Hyra",belopp:6252,typ:"ut",varierande:false,from:START,to:null,per:{}},
+  {id:"f2",namn:"El",belopp:0,typ:"ut",varierande:true,from:START,to:null,per:{}}
+];
+
+function fresh(){ return {csn:JSON.parse(JSON.stringify(CSN0)),fixed:JSON.parse(JSON.stringify(FIXED0)),tx:[]}; }
+
+/* ---------- hjälpare ---------- */
+var MON=["jan","feb","mar","apr","maj","jun","jul","aug","sep","okt","nov","dec"];
+var MONL=["januari","februari","mars","april","maj","juni","juli","augusti","september","oktober","november","december"];
+function pad(n){return String(n).padStart(2,"0")}
+function isoOf(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function mk(s){return s.slice(0,7)}
+function mLabel(m){return MON[+m.slice(5,7)-1]+" "+m.slice(2,4)}
+function mLong(m){return MONL[+m.slice(5,7)-1]+" "+m.slice(0,4)}
+function mName(m){return MONL[+m.slice(5,7)-1]}
+function addMonth(m,n){var y=+m.slice(0,4),mm=+m.slice(5,7)-1+n;y+=Math.floor(mm/12);mm=((mm%12)+12)%12;return y+"-"+pad(mm+1)}
+function dim(m){return new Date(+m.slice(0,4),+m.slice(5,7),0).getDate()}
+function kr(n){return new Intl.NumberFormat("sv-SE",{maximumFractionDigits:0}).format(Math.round(n))+" kr"}
+function krS(n){return new Intl.NumberFormat("sv-SE",{maximumFractionDigits:0}).format(Math.round(n))}
+function dLabel(s){return (+s.slice(8,10))+" "+MON[+s.slice(5,7)-1]}
+function catOf(id){for(var i=0;i<CATS.length;i++)if(CATS[i].id===id)return CATS[i];return CATS[CATS.length-1]}
+function uid(){return Math.random().toString(36).slice(2,9)}
+function num(v){var n=parseFloat(String(v).replace(",","."));return isNaN(n)?0:n}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+
+/* ---------- läge ---------- */
+var TODAY = isoOf(new Date());
+var THIS = mk(TODAY);
+var ACTIVE = THIS < START ? START : THIS;
+
+var S = {
+  data: fresh(),
+  tab: "oversikt",
+  view: ACTIVE,
+  hMonth: ACTIVE,
+  hCat: "alla",
+  hSort: "datum-ner",
+  openFixed: null,
+  nyFast: false,
+  save: "idle",
+  mode: "",
+  msg: ""
+};
+
+/* ---------- lagring ---------- */
+function hasStorage(){ return typeof window!=="undefined" && window.storage && typeof window.storage.set==="function"; }
+
+function waitForStorage(ms){
+  var t0 = Date.now();
+  return new Promise(function(res){
+    (function tick(){
+      if(hasStorage()) return res(true);
+      if(Date.now()-t0>ms) return res(false);
+      setTimeout(tick,200);
+    })();
+  });
+}
+
+function localOk(){
+  try{ window.localStorage.setItem("__t","1"); window.localStorage.removeItem("__t"); return true; }
+  catch(e){ return false; }
+}
+function writeLocal(v){
+  try{ window.localStorage.setItem(KEY, v); return true; } catch(e){ return false; }
+}
+function apply(raw){
+  try{
+    var d = JSON.parse(raw);
+    if(d && Array.isArray(d.tx)) S.data = Object.assign(fresh(), d);
+  } catch(e){}
+}
+
+var saveTimer = null;
+function save(){
+  S.save = "saving"; paint();
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    var v = JSON.stringify(S.data);
+    if(hasStorage()){
+      window.storage.set(KEY, v, false)
+        .then(function(){ S.mode="claude"; S.save="saved"; paint(); })
+        .catch(function(){ fallback(v); });
+    } else fallback(v);
+  }, 120);
+}
+function fallback(v){
+  if(writeLocal(v)){ S.mode="lokal"; S.save="saved"; }
+  else { S.mode="ingen"; S.save="error"; }
+  paint();
+}
+
+function load(){
+  waitForStorage(2500).then(function(ok){
+    if(ok){
+      return window.storage.get(KEY, false).then(function(r){
+        if(r && r.value) apply(r.value);
+        S.mode="claude"; S.save="saved"; paint();
+      }).catch(function(){ S.mode="claude"; S.save="idle"; paint(); });
+    }
+    var v = null;
+    try{ v = window.localStorage.getItem(KEY); } catch(e){}
+    if(v) apply(v);
+    if(localOk()){ S.mode="lokal"; S.save = v ? "saved" : "idle"; }
+    else { S.mode="ingen"; S.save="error"; }
+    paint();
+  });
+}
+
+/* ---------- beräkningar ---------- */
+function months(){
+  var all = [ACTIVE];
+  S.data.csn.forEach(function(c){ all.push(mk(c.date)) });
+  S.data.tx.forEach(function(t){ all.push(mk(t.date)) });
+  all = all.filter(function(m){ return m >= START }).sort();
+  var out = [], last = all[all.length-1] || START;
+  for(var m = START; m <= last; m = addMonth(m,1)) out.push(m);
+  return out;
+}
+function fixedOn(f,m){ return m >= f.from && (!f.to || m <= f.to) }
+function fixedAmt(f,m){ return f.varierande ? (f.per && f.per[m]!=null ? f.per[m] : 0) : f.belopp }
+
+function budget(m){
+  var csnIn = 0, fixIn = 0, fasta = 0, txIn = 0, spenderat = 0;
+  S.data.csn.forEach(function(c){ if(mk(c.date)===m) csnIn += c.sum });
+  S.data.fixed.forEach(function(f){
+    if(!fixedOn(f,m)) return;
+    if(f.typ==="in") fixIn += fixedAmt(f,m); else fasta += fixedAmt(f,m);
+  });
+  S.data.tx.forEach(function(t){
+    if(mk(t.date)!==m) return;
+    if(t.dir==="in") txIn += t.amount; else spenderat += t.amount;
+  });
+  var inkomst = csnIn + fixIn + txIn, utrymme = inkomst - fasta;
+  return {inkomst:inkomst, fasta:fasta, utrymme:utrymme, spenderat:spenderat, kvar:utrymme-spenderat};
+}
+
+function byCat(m){
+  var o = {};
+  S.data.tx.forEach(function(t){ if(t.dir==="ut" && mk(t.date)===m) o[t.cat]=(o[t.cat]||0)+t.amount });
+  return CATS.filter(function(c){ return o[c.id] })
+    .map(function(c){ return {id:c.id,namn:c.namn,color:c.color,value:o[c.id]} })
+    .sort(function(a,b){ return b.value-a.value });
+}
+
+/* ---------- donut ---------- */
+function donut(items,total){
+  if(!items.length) return "";
+  if(items.length===1){
+    return '<circle cx="100" cy="100" r="73" fill="none" stroke="'+items[0].color+'" stroke-width="30"/>';
+  }
+  var a = -Math.PI/2, R = 88, r = 58, cx = 100, cy = 100, out = "";
+  items.forEach(function(it){
+    var ang = it.value/total*Math.PI*2, b = a+ang, lg = ang>Math.PI?1:0;
+    out += '<path d="M '+(cx+R*Math.cos(a))+' '+(cy+R*Math.sin(a))
+        +' A '+R+' '+R+' 0 '+lg+' 1 '+(cx+R*Math.cos(b))+' '+(cy+R*Math.sin(b))
+        +' L '+(cx+r*Math.cos(b))+' '+(cy+r*Math.sin(b))
+        +' A '+r+' '+r+' 0 '+lg+' 0 '+(cx+r*Math.cos(a))+' '+(cy+r*Math.sin(a))+' Z" fill="'+it.color+'"/>';
+    a = b;
+  });
+  return out;
+}
+
+function chips(items,current,handler,labeller){
+  return '<div class="chips">' + items.map(function(m){
+    return '<button class="chip'+(m===current?" on":"")+'" onclick="'+handler+'(\''+m+'\')">'+labeller(m)+'</button>';
+  }).join("") + '</div>';
+}
+
+/* ---------- vyer ---------- */
+function vOversikt(){
+  var ms = months(), h = budget(ACTIVE), b = budget(S.view);
+  var igang = THIS >= START;
+  var dagar = igang ? dim(THIS) - (+TODAY.slice(8,10)) + 1 : dim(ACTIVE);
+  var perDag = h.kvar / Math.max(dagar,1);
+  var neg = h.kvar < 0;
+  var andel = h.utrymme > 0 ? Math.min(h.spenderat/h.utrymme,1) : (h.spenderat>0?1:0);
+  var barColor = neg ? "var(--rose)" : (andel>.8 ? "var(--gold)" : "var(--mint)");
+
+  var out = '<div class="card" style="padding:20px">'
+    + '<div class="xs mut">'+(igang?"Kvar att spendera i "+mName(ACTIVE):"Budget för "+mName(ACTIVE))+'</div>'
+    + '<div class="num" style="font-size:40px;font-weight:600;margin-top:6px;color:'+(neg?"var(--rose)":"var(--ink)")+'">'+kr(h.kvar)+'</div>'
+    + '<div class="sm" style="margin-top:4px;color:'+(neg?"var(--rose)":"var(--mint)")+'">'
+    + (neg ? "Du är "+kr(-h.kvar)+" över din CSN-budget" : kr(perDag)+" per dag i "+dagar+" dagar")
+    + '</div>'
+    + '<div class="track" style="margin-top:16px"><div style="width:'+(andel*100)+'%;background:'+barColor+'"></div></div>'
+    + '<div class="between xs mut" style="margin-top:6px"><span>'+krS(h.spenderat)+' spenderat</span><span>av '+krS(h.utrymme)+'</span></div>'
+    + '<div class="xs mut" style="margin-top:16px;padding-top:12px;border-top:1px solid var(--line);line-height:1.6">'
+    + kr(h.inkomst)+' in minus '+kr(h.fasta)+' i fasta kostnader.'+(igang?"":" Räkningen börjar 1 oktober.")
+    + '</div></div>';
+
+  out += chips(ms, S.view, "setView", function(m){ return mLabel(m)+(m===ACTIVE?" •":"") });
+
+  out += '<div class="card"><div style="display:flex;gap:8px">'
+    + stat("In", b.inkomst, "var(--mint)") + stat("Fasta", b.fasta, "var(--ink)") + stat("Rörligt", b.spenderat, "var(--ink)")
+    + '</div><div class="between" style="margin-top:16px;padding-top:12px;border-top:1px solid var(--line)">'
+    + '<span class="sm mut">Kvar i '+mName(S.view)+'</span>'
+    + '<span class="num" style="font-size:20px;font-weight:600;color:'+(b.kvar<0?"var(--rose)":"var(--mint)")+'">'+kr(b.kvar)+'</span>'
+    + '</div></div>';
+
+  /* kategoricirkel */
+  var bc = byCat(S.view), tot = bc.reduce(function(s,c){return s+c.value},0);
+  out += '<div class="card"><div class="ct">Vad pengarna gick till</div>'
+    + (tot ? '<div class="cs">'+kr(tot)+' i '+mLong(S.view)+'</div>' : '');
+  if(!bc.length){
+    out += '<div class="sm mut" style="text-align:center;padding:24px 0">Inga utgifter i '+mName(S.view)+' än. Tryck på + för att lägga in den första.</div>';
+  } else {
+    out += '<div style="position:relative;margin-top:12px">'
+      + '<svg viewBox="0 0 200 200" style="width:100%;max-width:220px;display:block;margin:0 auto">'+donut(bc,tot)+'</svg>'
+      + '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">'
+      + '<span class="num" style="font-size:20px;font-weight:600">'+krS(tot)+'</span>'
+      + '<span class="xs mut">kr rörligt</span></div></div>';
+    out += '<div style="margin-top:8px">' + bc.map(function(c){
+      return '<div class="row" style="padding:6px 0">'
+        + '<span class="dot" style="background:'+c.color+'"></span>'
+        + '<span class="sm trunc" style="flex:1">'+esc(c.namn)+'</span>'
+        + '<span class="xs mut num">'+Math.round(c.value/tot*100)+'%</span>'
+        + '<span class="sm num" style="width:74px;text-align:right">'+krS(c.value)+'</span></div>';
+    }).join("") + '</div>';
+  }
+  out += '</div>';
+
+  /* budgetstaplar */
+  var visade = ms.filter(function(m){ return m <= ACTIVE }).slice(-6);
+  out += '<div class="card"><div class="ct">Höll du dig under budgeten?</div>'
+    + '<div class="cs">Rörligt utrymme jämfört med vad du gjorde av med</div><div style="margin-top:12px">';
+  visade.forEach(function(m){
+    var x = budget(m), a = x.utrymme>0 ? Math.min(x.spenderat/x.utrymme,1) : (x.spenderat>0?1:0);
+    var over = x.kvar < 0;
+    out += '<div style="margin-bottom:12px"><div class="between xs" style="margin-bottom:5px">'
+      + '<span>'+mLabel(m)+'</span>'
+      + '<span class="num mut">'+krS(x.spenderat)+' / '+krS(x.utrymme)+'</span></div>'
+      + '<div class="track"><div style="width:'+(a*100)+'%;background:'+(over?"var(--rose)":"var(--mint)")+'"></div></div></div>';
+  });
+  out += '</div></div>';
+
+  /* läsåret hittills */
+  var gangna = ms.filter(function(m){ return m < THIS });
+  if(gangna.length){
+    var saldo = gangna.reduce(function(s,m){ return s + budget(m).kvar }, 0);
+    out += '<div class="card"><div class="between">'
+      + '<span class="sm mut">'+(saldo>=0?"Över":"Back")+' efter '+gangna.length+' avslutade månader</span>'
+      + '<span class="num" style="font-size:20px;font-weight:600;color:'+(saldo<0?"var(--rose)":"var(--mint)")+'">'+kr(saldo)+'</span>'
+      + '</div></div>';
+  }
+  return out;
+}
+
+function stat(l,v,c){
+  return '<div style="flex:1"><div class="xs mut" style="margin-bottom:4px">'+l+'</div>'
+    + '<div class="num" style="font-size:17px;font-weight:600;color:'+c+'">'+krS(v)+'</div></div>';
+}
+
+function vHistorik(){
+  var ms = months();
+  var rows = S.data.tx.filter(function(t){
+    return (S.hMonth==="alla" || mk(t.date)===S.hMonth) && (S.hCat==="alla" || t.cat===S.hCat);
+  });
+  var cmp = {
+    "datum-ner":function(a,b){return a.date<b.date?1:-1},
+    "datum-upp":function(a,b){return a.date>b.date?1:-1},
+    "belopp-ner":function(a,b){return b.amount-a.amount},
+    "belopp-upp":function(a,b){return a.amount-b.amount},
+    "kategori":function(a,b){return a.cat.localeCompare(b.cat)||(a.date<b.date?1:-1)}
+  }[S.hSort];
+  rows = rows.slice().sort(cmp);
+  var summa = rows.reduce(function(s,r){ return s + (r.dir==="ut"?r.amount:0) }, 0);
+
+  var out = '<div class="ct" style="font-size:18px;margin-bottom:12px">Historik</div>';
+  out += chips(["alla"].concat(ms), S.hMonth, "setHMonth", function(m){ return m==="alla"?"Alla":mLabel(m) });
+  out += '<div style="display:flex;gap:8px;margin-bottom:12px">'
+    + '<select onchange="setHCat(this.value)" style="flex:1;font-size:13px;padding:8px 10px"><option value="alla">Alla kategorier</option>'
+    + CATS.map(function(c){ return '<option value="'+c.id+'"'+(S.hCat===c.id?" selected":"")+'>'+esc(c.namn)+'</option>' }).join("")
+    + '</select>'
+    + '<select onchange="setHSort(this.value)" style="flex:1;font-size:13px;padding:8px 10px">'
+    + [["datum-ner","Nyast först"],["datum-upp","Äldst först"],["belopp-ner","Störst belopp"],["belopp-upp","Minst belopp"],["kategori","Kategori"]]
+        .map(function(o){ return '<option value="'+o[0]+'"'+(S.hSort===o[0]?" selected":"")+'>'+o[1]+'</option>' }).join("")
+    + '</select></div>';
+
+  out += '<div class="card"><div class="between"><span class="sm mut">'+rows.length+' poster</span>'
+    + '<span class="num" style="font-size:18px;font-weight:600">'+kr(summa)+'</span></div></div>';
+
+  if(!rows.length){
+    out += '<div class="card"><div class="sm mut" style="text-align:center;padding:16px 0">Inget här ännu. Tryck på + så dyker posterna upp i listan.</div></div>';
+  } else {
+    out += '<div class="lst">' + rows.map(function(t){
+      var c = catOf(t.cat);
+      return '<div><span style="width:8px;height:30px;border-radius:4px;flex:0 0 auto;background:'+(t.dir==="in"?"var(--mint)":c.color)+'"></span>'
+        + '<div style="flex:1;min-width:0"><div class="sm trunc">'+esc(t.note || (t.dir==="in"?"Inkomst":c.namn))+'</div>'
+        + '<div class="xs mut">'+dLabel(t.date)+(t.dir==="ut"?" · "+esc(c.namn):"")+'</div></div>'
+        + '<span class="sm num" style="color:'+(t.dir==="in"?"var(--mint)":"var(--ink)")+'">'+(t.dir==="in"?"+":"−")+krS(t.amount)+'</span>'
+        + '<button class="xs mut" style="padding:0 4px" onclick="delTx(\''+t.id+'\')" aria-label="Ta bort">✕</button></div>';
+    }).join("") + '</div>';
+  }
+  return out;
+}
+
+function vFasta(){
+  var ms = months();
+  var out = '<div class="ct" style="font-size:18px">Fasta poster</div>'
+    + '<div class="xs mut" style="margin:4px 0 12px">Dras från månadens CSN innan du får ditt rörliga utrymme.</div>';
+  out += chips(ms, S.view, "setView", mLabel);
+
+  S.data.fixed.forEach(function(f){
+    var on = fixedOn(f, S.view);
+    var belopp = f.varierande ? (f.per && f.per[S.view]!=null ? f.per[S.view] : null) : f.belopp;
+    var open = S.openFixed === f.id;
+    out += '<div class="card" style="opacity:'+(on?1:.45)+'">'
+      + '<div class="row" onclick="toggleFixed(\''+f.id+'\')">'
+      + '<div style="flex:1"><div class="sm" style="font-weight:500">'+esc(f.namn)+'</div>'
+      + '<div class="xs mut" style="margin-top:2px">'+(f.typ==="in"?"Inkomst":"Utgift")+' · '
+      + (on ? (f.to ? "t.o.m. "+mLong(f.to) : "tills vidare") : "börjar "+mLong(f.from)) + '</div></div>'
+      + (belopp===null ? '<span class="xs" style="color:var(--gold)">Fyll i</span>'
+          : '<span class="num" style="font-size:16px;font-weight:600;color:'+(f.typ==="in"?"var(--mint)":"var(--ink)")+'">'+krS(belopp)+'</span>')
+      + '<span class="xs mut">'+(open?"▴":"▾")+'</span></div>';
+
+    if(f.varierande && on){
+      out += '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">'
+        + '<label class="f"><span>Belopp för '+mLong(S.view)+'</span>'
+        + '<input type="text" inputmode="decimal" placeholder="0" value="'+(f.per&&f.per[S.view]!=null?f.per[S.view]:"")+'" '
+        + 'onchange="setPer(\''+f.id+'\',this.value)"></label></div>';
+    }
+
+    if(open){
+      out += '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">'
+        + '<label class="f"><span>Namn</span><input value="'+esc(f.namn)+'" onchange="patchFixed(\''+f.id+'\',\'namn\',this.value)"></label>';
+      if(!f.varierande){
+        out += '<label class="f"><span>Belopp per månad</span><input type="text" inputmode="decimal" value="'+f.belopp+'" onchange="patchFixed(\''+f.id+'\',\'belopp\',this.value)"></label>';
+      }
+      out += '<label class="f"><span>Typ</span><select onchange="patchFixed(\''+f.id+'\',\'typ\',this.value)">'
+        + '<option value="ut"'+(f.typ==="ut"?" selected":"")+'>Utgift</option>'
+        + '<option value="in"'+(f.typ==="in"?" selected":"")+'>Inkomst</option></select></label>'
+        + '<div style="display:flex;gap:12px">'
+        + '<label class="f" style="flex:1"><span>Från och med</span><select onchange="patchFixed(\''+f.id+'\',\'from\',this.value)">'
+        + ms.map(function(m){ return '<option value="'+m+'"'+(f.from===m?" selected":"")+'>'+mLong(m)+'</option>' }).join("")
+        + '</select></label>'
+        + '<label class="f" style="flex:1"><span>Till och med</span><select onchange="patchFixed(\''+f.id+'\',\'to\',this.value)">'
+        + '<option value="">Tills vidare</option>'
+        + ms.map(function(m){ return '<option value="'+m+'"'+(f.to===m?" selected":"")+'>'+mLong(m)+'</option>' }).join("")
+        + '</select></label></div>'
+        + '<label class="row sm mut" style="margin-bottom:12px;gap:8px"><input type="checkbox" style="width:auto"'
+        + (f.varierande?" checked":"")+' onchange="patchFixed(\''+f.id+'\',\'varierande\',this.checked)">'
+        + 'Beloppet varierar – jag fyller i per månad</label>'
+        + '<button class="btn d" style="width:100%" onclick="delFixed(\''+f.id+'\')">Ta bort posten</button></div>';
+    }
+    out += '</div>';
+  });
+
+  if(S.nyFast){
+    out += '<div class="card"><div class="ct" style="margin-bottom:12px">Ny fast post</div>'
+      + '<label class="f"><span>Namn</span><input id="nfNamn" placeholder="t.ex. Mobilabonnemang"></label>'
+      + '<label class="f"><span>Belopp per månad</span><input id="nfBelopp" type="text" inputmode="decimal" placeholder="0"></label>'
+      + '<label class="f"><span>Typ</span><select id="nfTyp"><option value="ut">Utgift</option><option value="in">Inkomst</option></select></label>'
+      + '<div style="display:flex;gap:12px">'
+      + '<label class="f" style="flex:1"><span>Från och med</span><select id="nfFrom">'
+      + ms.map(function(m){ return '<option value="'+m+'"'+(m===S.view?" selected":"")+'>'+mLong(m)+'</option>' }).join("")+'</select></label>'
+      + '<label class="f" style="flex:1"><span>Till och med</span><select id="nfTo"><option value="">Tills vidare</option>'
+      + ms.map(function(m){ return '<option value="'+m+'">'+mLong(m)+'</option>' }).join("")+'</select></label></div>'
+      + '<label class="row sm mut" style="margin-bottom:12px;gap:8px"><input id="nfVar" type="checkbox" style="width:auto">Beloppet varierar – jag fyller i per månad</label>'
+      + '<div style="display:flex;gap:8px"><button class="btn" style="flex:1" onclick="S.nyFast=false;paint()">Avbryt</button>'
+      + '<button class="btn p" style="flex:1" onclick="addFixed()">Spara posten</button></div></div>';
+  } else {
+    out += '<button class="btn" style="width:100%" onclick="S.nyFast=true;paint()">Lägg till fast post</button>';
+  }
+  return out;
+}
+
+function vAret(){
+  var ms = months();
+  var csnKvar = S.data.csn.reduce(function(s,c){ return s + (c.date>TODAY ? c.sum : 0) }, 0);
+  var lan = S.data.csn.reduce(function(s,c){ return s + c.lan }, 0);
+
+  var out = '<div class="ct" style="font-size:18px;margin-bottom:12px">Läsåret 2026/27</div>';
+
+  out += '<div class="card"><div class="ct">Månad för månad</div>'
+    + '<div class="cs">Vad som blir kvar till rörliga utgifter när fasta kostnader är betalda</div>'
+    + '<table style="margin-top:12px"><tr><th>Månad</th><th>In</th><th>Fasta</th><th>Rörligt</th></tr>'
+    + ms.map(function(m){
+        var b = budget(m);
+        return '<tr><td>'+mLabel(m)+'</td><td class="mut">'+krS(b.inkomst)+'</td><td class="mut">'+krS(b.fasta)
+          + '</td><td style="font-weight:500;color:'+(b.utrymme<0?"var(--rose)":"var(--ink)")+'">'+krS(b.utrymme)+'</td></tr>';
+      }).join("")
+    + '</table><div class="xs mut" style="margin-top:12px;line-height:1.6">'
+    + 'December och maj är tunnare eftersom de utbetalningarna täcker färre veckor. Efter 25 maj kommer ingen CSN förrän höstterminen.'
+    + '</div></div>';
+
+  out += '<div class="card"><div class="ct">CSN-utbetalningar</div><div class="cs">Enligt beslutet 2026-08-09</div><div style="margin-top:8px">'
+    + S.data.csn.map(function(c){
+        var p = c.date <= TODAY;
+        return '<div class="row" style="padding:10px 0;border-bottom:1px solid var(--line)">'
+          + '<div style="flex:1"><div class="sm" style="color:'+(p?"var(--muted)":"var(--ink)")+'">'+dLabel(c.date)+' '+c.date.slice(0,4)+'</div>'
+          + '<div class="xs mut">Vecka '+c.weeks+(c.note?" · "+esc(c.note):"")+'</div></div>'
+          + '<span class="num sm" style="font-weight:600;color:'+(p?"var(--muted)":"var(--mint)")+'">'+krS(c.sum)+'</span></div>';
+      }).join("")
+    + '</div><div class="between sm" style="padding-top:12px"><span class="mut">Kvar att få</span>'
+    + '<span class="num" style="font-weight:500">'+kr(csnKvar)+'</span></div>'
+    + '<div class="between sm" style="padding-top:8px"><span class="mut">Varav lån hela läsåret</span>'
+    + '<span class="num" style="font-weight:500;color:var(--gold)">'+kr(lan)+'</span></div></div>';
+
+  out += '<div class="card"><div class="ct">Säkerhetskopia</div>'
+    + '<div class="cs">Kopiera ut din data om du vill ha den på ett andra ställe</div>'
+    + '<textarea id="bkOut" readonly style="height:70px;font-size:11px;font-family:ui-monospace,monospace;margin-top:12px" onfocus="this.select()">'
+    + esc(JSON.stringify(S.data)) + '</textarea>'
+    + '<button class="btn" style="width:100%;margin:8px 0 16px" onclick="kopiera()">Kopiera min data</button>'
+    + '<label class="f"><span>Klistra in en tidigare kopia</span>'
+    + '<textarea id="bkIn" placeholder="Klistra in här" style="height:58px;font-size:11px;font-family:ui-monospace,monospace"></textarea></label>'
+    + '<button class="btn p" style="width:100%" onclick="lasIn()">Läs in kopian</button>'
+    + (S.msg ? '<div class="xs mut" style="margin-top:12px">'+esc(S.msg)+'</div>' : '')
+    + '</div>';
+
+  out += '<div class="card"><div class="ct" style="margin-bottom:12px">Börja om</div>'
+    + '<div class="xs mut" style="margin-bottom:12px">Tar bort alla utgifter och fasta poster och återställer CSN-planen till beslutet.</div>'
+    + '<button class="btn d" style="width:100%" onclick="nollstall()">Nollställ allt</button></div>';
+
+  var statusText = {
+    idle: "Inget ändrat än.",
+    saving: "Sparar…",
+    saved: S.mode==="lokal"
+      ? "Sparat i den här webbläsaren. Datan ligger på den här enheten."
+      : "Sparat i Claude. Allt finns kvar nästa gång du öppnar sidan.",
+    error: "Ingen lagring tillgänglig här. Ladda ner filen och lägg upp den enligt instruktionen."
+  }[S.save];
+  out += '<div class="xs mut" style="padding:0 4px 8px">' + statusText + '</div>';
+  return out;
+}
+
+/* ---------- rendering ---------- */
+function paint(){
+  document.getElementById("alert").innerHTML = S.save==="error"
+    ? '<div class="alert">Ingen lagring är tillgänglig i den här vyn. Det du lägger in finns kvar så länge sidan är öppen. Ladda ner filen och lägg upp den så sparar den på riktigt.'
+      + '<div style="margin-top:8px;display:flex;gap:8px">'
+      + '<button class="btn d" style="padding:6px 12px;font-size:12px" onclick="save()">Försök igen</button>'
+      + '<button class="btn d" style="padding:6px 12px;font-size:12px" onclick="go(\'aret\')">Säkerhetskopiera</button></div></div>'
+    : "";
+
+  document.getElementById("view").innerHTML =
+    S.tab==="oversikt" ? vOversikt() :
+    S.tab==="historik" ? vHistorik() :
+    S.tab==="fasta" ? vFasta() : vAret();
+
+  document.getElementById("nav").innerHTML =
+    [["oversikt","Översikt"],["historik","Historik"],["fasta","Fasta"],["aret","Året"]].map(function(t){
+      return '<button class="'+(S.tab===t[0]?"on":"")+'" onclick="go(\''+t[0]+'\')">'+t[1]+'<i></i></button>';
+    }).join("");
+}
+
+/* ---------- handlingar ---------- */
+function go(t){ S.tab = t; window.scrollTo(0,0); paint(); }
+function setView(m){ S.view = m; paint(); }
+function setHMonth(m){ S.hMonth = m; paint(); }
+function setHCat(v){ S.hCat = v; paint(); }
+function setHSort(v){ S.hSort = v; paint(); }
+function toggleFixed(id){ S.openFixed = S.openFixed===id ? null : id; paint(); }
+
+function delTx(id){
+  S.data.tx = S.data.tx.filter(function(t){ return t.id!==id });
+  save(); paint();
+}
+function setPer(id,v){
+  S.data.fixed.forEach(function(f){
+    if(f.id!==id) return;
+    f.per = f.per || {};
+    if(v==="") delete f.per[S.view]; else f.per[S.view] = num(v);
+  });
+  save(); paint();
+}
+function patchFixed(id,key,v){
+  S.data.fixed.forEach(function(f){
+    if(f.id!==id) return;
+    if(key==="belopp") f.belopp = num(v);
+    else if(key==="to") f.to = v || null;
+    else f[key] = v;
+  });
+  save(); paint();
+}
+function delFixed(id){
+  S.data.fixed = S.data.fixed.filter(function(f){ return f.id!==id });
+  S.openFixed = null; save(); paint();
+}
+function addFixed(){
+  var namn = document.getElementById("nfNamn").value.trim();
+  if(!namn) return;
+  S.data.fixed.push({
+    id:uid(), namn:namn, belopp:num(document.getElementById("nfBelopp").value),
+    typ:document.getElementById("nfTyp").value,
+    varierande:document.getElementById("nfVar").checked,
+    from:document.getElementById("nfFrom").value,
+    to:document.getElementById("nfTo").value || null, per:{}
+  });
+  S.nyFast = false; save(); paint();
+}
+function nollstall(){
+  if(!confirm("Radera alla utgifter och fasta poster?")) return;
+  S.data = fresh(); save(); paint();
+}
+function kopiera(){
+  var el = document.getElementById("bkOut");
+  el.focus(); el.select();
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(el.value)
+      .then(function(){ S.msg = "Kopierad."; paint(); })
+      .catch(function(){ S.msg = "Kopiering blockerad. Markera texten och kopiera manuellt."; paint(); });
+  } else { S.msg = "Markera texten i rutan och kopiera manuellt."; paint(); }
+}
+function lasIn(){
+  try{
+    var d = JSON.parse(document.getElementById("bkIn").value);
+    if(!d || !Array.isArray(d.tx)) throw new Error("fel");
+    S.data = Object.assign(fresh(), d);
+    S.msg = "Inläst. Dina poster är tillbaka.";
+    save(); paint();
+  } catch(e){ S.msg = "Det där gick inte att läsa. Klistra in hela texten du kopierade."; paint(); }
+}
+
+/* ---------- inmatningsruta ---------- */
+var sheetDir = "ut", sheetCat = "mat";
+
+function openSheet(){
+  sheetDir = "ut"; sheetCat = "mat";
+  document.getElementById("sheetbg").style.display = "flex";
+  drawSheet();
+}
+function closeSheet(){ document.getElementById("sheetbg").style.display = "none"; }
+
+function drawSheet(keepValues){
+  var belopp = "", datum = (THIS < START ? ACTIVE+"-01" : TODAY), not = "";
+  if(keepValues){
+    belopp = document.getElementById("shBelopp").value;
+    datum = document.getElementById("shDatum").value;
+    not = document.getElementById("shNot").value;
+  }
+  document.getElementById("sheet").innerHTML =
+    '<div class="between" style="margin-bottom:16px"><span class="ct" style="font-size:16px">Ny post</span>'
+    + '<button class="sm mut" onclick="closeSheet()">Avbryt</button></div>'
+    + '<div class="seg">'
+    + '<button class="'+(sheetDir==="ut"?"on":"")+'" onclick="setDir(\'ut\')">Utgift</button>'
+    + '<button class="'+(sheetDir==="in"?"on in":"")+'" onclick="setDir(\'in\')">Inkomst</button></div>'
+    + '<label class="f"><span>Belopp</span><input id="shBelopp" type="text" inputmode="decimal" placeholder="0" '
+    + 'value="'+esc(belopp)+'" style="font-size:30px;font-weight:600;padding:12px 14px"></label>'
+    + (sheetDir==="ut"
+        ? '<label class="f"><span>Kategori</span></label><div class="cats" style="margin:-8px 0 12px">'
+          + CATS.map(function(c){
+              var on = sheetCat===c.id;
+              return '<button class="cat" style="'+(on?'background:'+c.color+';color:#12202A;font-weight:600;border-color:'+c.color:'')+'" '
+                + 'onclick="setCat(\''+c.id+'\')">'+(on?"":'<span class="dot" style="background:'+c.color+'"></span>')+esc(c.namn)+'</button>';
+            }).join("") + '</div>'
+        : '')
+    + '<label class="f"><span>Datum</span><input id="shDatum" type="date" value="'+datum+'"></label>'
+    + '<label class="f"><span>Anteckning (valfritt)</span><input id="shNot" value="'+esc(not)+'" placeholder="'
+    + (sheetDir==="in"?"t.ex. extrajobb":"t.ex. ICA")+'"></label>'
+    + '<button class="btn p" style="width:100%;padding:14px;font-size:15px" onclick="addTx()">Spara '
+    + (sheetDir==="in"?"inkomst":"utgift")+'</button>';
+  if(!keepValues) setTimeout(function(){ var el=document.getElementById("shBelopp"); if(el) el.focus(); }, 60);
+}
+function setDir(d){ sheetDir = d; drawSheet(true); }
+function setCat(c){ sheetCat = c; drawSheet(true); }
+
+function addTx(){
+  var a = num(document.getElementById("shBelopp").value);
+  if(a <= 0) return;
+  S.data.tx.push({
+    id: uid(),
+    date: document.getElementById("shDatum").value,
+    amount: a,
+    cat: sheetDir==="in" ? "ovrigt" : sheetCat,
+    dir: sheetDir,
+    note: document.getElementById("shNot").value.trim()
+  });
+  closeSheet();
+  save();
+  paint();
+}
+
+document.getElementById("fab").onclick = openSheet;
+document.getElementById("sheetbg").onclick = function(e){ if(e.target.id==="sheetbg") closeSheet(); };
+
+paint();
+load();
+</script>
+</body>
+</html>
